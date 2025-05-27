@@ -3,7 +3,7 @@
 
 # Using Splunk, find the attacker’s IP address.
 I started by searching: 
-- index=* |dedup user
+index=* |dedup user
 This searches across all indexes (index=*) and filters the results to show only the first occurrence of each unique user, removing duplicate events for the same user (|dedup user).
 
 Initially, this revealed thousands of logs all associated with a single user and the IP 172.16.23.72. However, this IP was later identified as the internal address of the target 
@@ -11,7 +11,7 @@ server, not the attacker. Despite that, the logs showed what appears to be a bru
 
 Next, I narrowed down the search to focus on the specific IP addresses involved within the entirety of the logs. 
 
-- index=* | rex field=_raw "(?<ip>\b(?:\d{1,3}\.){3}\d{1,3}\b)" | stats count by ip | sort - count
+index=* | rex field=_raw "(?<ip>\b(?:\d{1,3}\.){3}\d{1,3}\b)" | stats count by ip | sort - count
 This command searches all indexes in Splunk (index=*) and uses a regular expression (regex) to extract IP addresses from the raw log data (_raw field). It looks for IPv4 patterns (four 
 groups of 1 to 3 digits separated by dots) and saves them into a new field called ip (| rex field=_raw "(?<ip>\b(?:\d{1,3}\.){3}\d{1,3}\b)"). Then, it counts how many times each 
 extracted IP appears (| stats count by ip) and sorts the results in descending order (| sort - count).
@@ -44,4 +44,4 @@ attack where the attacker tried to repeatedly connect and authenticate to the se
 # After compromising the WebApp server, the attacker attempted lateral movement. Identify the technique used, as recorded in the SIEM logs.
 
 # Identify the user account that achieved successful lateral movement to another server.
-- While searching the index logs, I used Show Source to examine the attacker's successful login in detail and found that the breached account was dbserv.
+While searching the index logs, I used Show Source to examine the attacker's successful login in detail and found that the breached account was dbserv.
