@@ -1,0 +1,47 @@
+# Access the Website in the browser, present it in the bookmark, and identify the JavaScript framework and version used.
+- For this step, I simply went to the website and scrolled to the bottom of the page to find the framework and version.
+
+# Using Splunk, find the attacker’s IP address.
+I started by searching: 
+- index=* |dedup user
+This searches across all indexes (index=*) and filters the results to show only the first occurrence of each unique user, removing duplicate events for the same user (|dedup user).
+
+Initially, this revealed thousands of logs all associated with a single user and the IP 172.16.23.72. However, this IP was later identified as the internal address of the target 
+server, not the attacker. Despite that, the logs showed what appears to be a brute force attempt, indicated by multiple repeated failed login attempts. 
+
+Next, I narrowed down the search to focus on the specific IP addresses involved within the entirety of the logs. 
+
+- index=* | rex field=_raw "(?<ip>\b(?:\d{1,3}\.){3}\d{1,3}\b)" | stats count by ip | sort - count
+This command searches all indexes in Splunk (index=*) and uses a regular expression (regex) to extract IP addresses from the raw log data (_raw field). It looks for IPv4 patterns (four 
+groups of 1 to 3 digits separated by dots) and saves them into a new field called ip (| rex field=_raw "(?<ip>\b(?:\d{1,3}\.){3}\d{1,3}\b)"). Then, it counts how many times each 
+extracted IP appears (| stats count by ip) and sorts the results in descending order (| sort - count).
+
+Doing this showed the initial server IP address (172.16.23.72) 
+with the most interaction. Next on the list was 218.92.0.204 with almost as much traffic, as well as a handful of other IPs, none of which had nearly as much activity.
+
+While 218.92.0.204 was the correct IP address to focus on, I wanted to dig deeper to find concrete proof of its involvement.
+
+After identifying the potential culprit, I narrowed the search by querying the index specifically for that IP address (index=* 218.92.0.204).
+
+When I searched for the attacker’s IP and examined the events using Show Source, I noticed a long list of entries that appeared to be TCP communications between the two IPs (218.92.0.204 and 172.16.23.72). 
+The logs showed packets with TCP flags like ACK in brackets, along with port numbers. This indicates the handshake and ongoing connection attempts between the attacker and the server. Interspersed with 
+these TCP entries, some lines had cache-control: no-store, which is an HTTP header instructing browsers or proxies not to store the response. This suggests that some requests were actual HTTP traffic, 
+possibly related to the attack attempts. The repetitive TCP handshake entries combined with the "cache-control: no-store" headers, along with the many failed login attempts, strongly indicate a brute force 
+attack where the attacker tried to repeatedly connect and authenticate to the server.
+
+# Analyze the SIEM logs to determine how many unique URIs were accessed by the attacker.
+
+# Explore the site and identify two specific locations that could reveal internal structures or potential access points not meant for public eyes. Provide the two relative URLs.
+
+# Based on the Framework and Version, what recent CVE could be used to bypass authorization?
+
+# Find the relevant HTTP header in the SIEM logs that indicates CVE exploitation. Provide the header name.
+
+# What interesting URI did the attacker access after exploiting the CVE?
+
+# The attacker tried uploading a reverse shell. Find out the IP and port to which the target would connect once the connection is established.
+
+# After compromising the WebApp server, the attacker attempted lateral movement. Identify the technique used, as recorded in the SIEM logs.
+
+# Identify the user account that achieved successful lateral movement to another server.
+- While searching the index logs, I used Show Source to examine the attacker's successful login in detail and found that the breached account was dbserv.
