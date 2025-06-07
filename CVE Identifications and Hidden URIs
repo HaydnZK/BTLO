@@ -1,0 +1,22 @@
+BTLO Investigation Notes – CVE Identification and Hidden URIs
+
+To find URIs that could reveal internal structures or access points not meant for public users, I added /robots.txt to the base URL of the site. 
+This file is commonly used to instruct search engines on which paths to ignore, but it can also unintentionally disclose sensitive or restricted paths.
+
+In this case, the robots.txt file revealed two disallowed URIs:
+
+/admin
+/admin/file-upload
+
+Testing these in the browser led to login pages, confirming that they are valid endpoints. While access is restricted, their existence provides useful 
+information for reconnaissance and may indicate administrative functionality that could be targeted further.
+
+For the CVE identification, the application was running Next.js version 15.0.0. I searched across vulnerability databases including NVD and CVE.org using 
+terms like "Next.js 15" and reviewed CVEs specific to that version. After filtering through unrelated results, I identified CVE-2025-29927 as the most relevant match.
+
+This vulnerability impacts versions starting from 1.11.4 up to, but not including, versions 12.3.5, 13.5.9, 14.2.25, and 15.2.3. It allows an attacker to bypass 
+authorization checks if those checks are implemented in middleware. The advisory recommends upgrading to a safe version or filtering out external requests with the 
+x-middleware-subrequest header as a mitigation.
+
+Today I successfully identified two URIs likely intended to be hidden from general access, verified their existence, and confirmed a CVE that matches the application’s 
+version and the nature of the exploit being simulated in the lab.
