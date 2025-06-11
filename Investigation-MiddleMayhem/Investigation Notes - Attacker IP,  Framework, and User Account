@@ -29,6 +29,8 @@ these TCP entries, some lines had cache-control: no-store, which is an HTTP head
 possibly related to the attack attempts. The repetitive TCP handshake entries combined with the "cache-control: no-store" headers, along with the many failed login attempts, strongly indicate a brute force 
 attack where the attacker tried to repeatedly connect and authenticate to the server.
 
+Within this Show Source section, I was able to determine that the attacker had used SSH Brute Force to breach system and move laterally within in.
+
 # Analyze the SIEM logs to determine how many unique URIs were accessed by the attacker.
 
 # Explore the site and identify two specific locations that could reveal internal structures or potential access points not meant for public eyes. Provide the two relative URLs.
