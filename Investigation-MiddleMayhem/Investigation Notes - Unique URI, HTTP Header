@@ -1,0 +1,12 @@
+To determine the unique URI accessed by the attacker post-exploitation, I first focused on identifying signs of the CVE being used.
+The site was running Next.js 15.0.0, and I found CVE-2025-29927, which allows attackers to bypass authorization by abusing middleware.
+
+I searched the SIEM logs for any signs of middleware activity and found the HTTP header x-middleware-subrequest being used in several 
+requests. This confirmed the CVE was likely being exploited.
+
+From there, I checked the nearby log entries and found a specific URI that was accessed shortly afterward. It wasn’t commonly visited and 
+stood out from regular traffic, which made it the most likely target accessed after the breach.
+
+To find this, I used the search:
+
+index=* "x-middleware-subrequest"
