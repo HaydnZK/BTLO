@@ -1,0 +1,26 @@
+Investigation Notes – Final Phase (Unique URIs and Reverse Shell Details)
+To determine the total number of unique URIs accessed by the attacker, I searched for the attacker's IP address (218.92.0.204) alongside the HTTP URI field. This allowed 
+me to isolate every HTTP request made by that IP. The query I used was:
+
+index=* "218.92.0.204" | stats count by http_request_uri
+
+This returned all the unique URI paths the attacker attempted to access. The total result count displayed was 9,930, which confirmed the correct answer. Since the search 
+specifically filtered on the attacker’s IP and displayed URI data, it accurately represented the full scope of web requests made during the attack.
+
+The next task was to determine which IP address and port the target system attempted to connect to once a reverse shell was established.
+
+To start, I searched for signs of a reverse shell and discovered a new external IP address associated with this activity: 113.89.232.157. I then performed a search that included 
+this IP, the previously identified post-exploitation URI (/api/upload), and the middleware HTTP header used in the CVE exploit. The full query included the following components:
+
+middleware
+/api/upload
+113.89.232.157
+
+This narrowed the results down to a single event. Within that event, I was able to identify both the IP address and the associated port number, confirming the attacker's command 
+and control setup. The target system was attempting to reach out to the attacker's infrastructure using these details, which provided evidence of a successful reverse shell connection.
+
+Room complete.
+
+This final phase wrapped up the investigation by confirming both the attacker's activity across the web application and their attempt to maintain access through external control. 
+The investigation required a combination of pivoting through IPs, understanding exploit mechanics, and interpreting raw log data to reconstruct the timeline of events. It served as 
+valuable practice in applying blue team analysis techniques in a realistic scenario.
